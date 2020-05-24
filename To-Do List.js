@@ -1,7 +1,9 @@
 let taskArr = []
-for (let i = 1; i < sessionStorage.length-1; i++) {
-    taskArr.push(sessionStorage[i])
+
+if (sessionStorage.length>1) {
+    taskArr = sessionStorage.getItem('taskArr').split('@@')
 }
+
 console.log(taskArr)
 let listCount = 1
 
@@ -25,11 +27,12 @@ for (let i = 0; i < taskArr.length; i++) {
                 newItem.className='normal'
             }
         })
-    
 }
-
+const saveButton = document.getElementById('save list')
 
 const inputButton = document.getElementById('input button')
+
+const clearButton = document.getElementById('clear list')
 
 inputButton.addEventListener('click',()=>{
     let input = document.getElementById('input one')
@@ -51,7 +54,6 @@ inputButton.addEventListener('click',()=>{
             }
         })
     taskArr.push(input.value)
-    sessionStorage[listCount]=input.value
 })
 
 const sortAlpha = document.getElementById('sort alpha')
@@ -67,8 +69,17 @@ sortAlpha.addEventListener('click', ()=>{
         let task=document.getElementById(taskArr[i])
         task.style.order=i
     }
-    
 })
+
+saveButton.addEventListener('click',()=>{
+    console.log('taskArr',taskArr.join('@@'))
+    sessionStorage.setItem('taskArr',taskArr.join('@@'))
+})
+
+clearButton.addEventListener('click',()=>{
+    sessionStorage.clear()
+})
+
 
 const sortFinished = document.getElementById('sort finished')
 
