@@ -1,21 +1,44 @@
 let taskArr = []
+let listCount = 1
+const sort = document.getElementById('sort')
+const inputButton = document.getElementById('input button')
+const clearButton = document.getElementById('clear list')
 
-if (sessionStorage.length>1) {
-    taskArr = sessionStorage.getItem('taskArr').split('@@')
+function save() {
+    let storageArr = []
+    for (let i = 0; i < taskArr.length; i++) {
+        let id=document.getElementById(taskArr[i][0])
+        if (id.className=='strike') {
+            taskArr[i][1]='finished'
+        }
+        else {
+            taskArr[i][1]='unfinished'
+        }
+        storageArr.push(taskArr[i].join('@@'))
+    }
+    storageArr=storageArr.join('~~')
+    sessionStorage.setItem('taskArr',storageArr)
 }
 
-console.log(taskArr)
-let listCount = 1
+if (sessionStorage.length>1) {
+    taskArr = sessionStorage.getItem('taskArr').split('~~')
+    for (let i = 0; i < taskArr.length; i++) {
+        taskArr[i]=taskArr[i].split('@@')
+    }
+}
 
 for (let i = 0; i < taskArr.length; i++) {
-    let input = taskArr[i]
-    console.log(input)
+    let input = taskArr[i][0]
     let list = document.getElementById('list one')
     let newItem = document.createElement('li')
-    
     newItem.innerText=(input)
     newItem.setAttribute('id',input)
-    newItem.setAttribute('class','normal')
+    if (taskArr[i][1]=='unfinished') {
+        newItem.setAttribute('class','normal')
+    }
+    else {
+        newItem.setAttribute('class','strike')
+    }
     newItem.style.order=listCount
     listCount++
     list.appendChild(newItem)
@@ -26,69 +49,79 @@ for (let i = 0; i < taskArr.length; i++) {
             else {
                 newItem.className='normal'
             }
+            save()
         })
 }
-const saveButton = document.getElementById('save list')
-
-const inputButton = document.getElementById('input button')
-
-const clearButton = document.getElementById('clear list')
 
 inputButton.addEventListener('click',()=>{
     let input = document.getElementById('input one')
     let list = document.getElementById('list one')
-    let newItem = document.createElement('li')
-    
-    newItem.innerText=(input.value)
-    newItem.setAttribute('id',input.value)
-    newItem.setAttribute('class','normal')
-    newItem.style.order=listCount
-    listCount++
-    list.appendChild(newItem)
-    newItem.addEventListener('click',()=>{
-            if (newItem.className=='normal'){
-                newItem.className='strike'
-            }
-            else {
-                newItem.className='normal'
-            }
-        })
-    taskArr.push(input.value)
-})
-
-const sortAlpha = document.getElementById('sort alpha')
-
-sortAlpha.addEventListener('click', ()=>{
-    taskArr.sort()
-    for (let i = 0; i < taskArr.length; i++) {
-        let task=document.getElementById(taskArr[i])
-        task.style.order=i
-    }
-    taskArr.sort(function(a, b){return a-b})
-    for (let i = 0; i < taskArr.length; i++) {
-        let task=document.getElementById(taskArr[i])
-        task.style.order=i
+    if (input.value!='') {
+        let newItem = document.createElement('li')
+        newItem.innerText=(input.value)
+        newItem.setAttribute('id',input.value)
+        newItem.setAttribute('class','normal')
+        newItem.style.order=listCount
+        listCount++
+        list.appendChild(newItem)
+        taskArr.push([input.value,'unfinished'])
+        newItem.addEventListener('click',()=>{
+                if (newItem.className=='normal'){
+                    newItem.className='strike'
+                }
+                else {
+                    newItem.className='normal'
+                }
+                save()
+            })
+        input.value=''
+        save()
     }
 })
 
-saveButton.addEventListener('click',()=>{
-    console.log('taskArr',taskArr.join('@@'))
-    sessionStorage.setItem('taskArr',taskArr.join('@@'))
+sort.addEventListener('click', ()=>{
+    for (let i = 0; i < taskArr.length; i++) {
+        let task=document.getElementById(taskArr[i][0])
+        if (task.className=='strike') {
+            taskArr[i][1]='finished'
+        }
+        else {
+            taskArr[i][1]='unfinished'
+        }
+    }
+    function strikeCompare(a,b) {
+        let compA=a[1]
+        let compB=b[1]
+        if (compA<compB) {
+            return 1
+        } else if (compA>compB) {
+            return -1
+        }
+        else {
+            return 0
+        }
+    }
+    function compare(a,b) {
+        let compA=a[0]
+        let compB=b[0]
+        if (compA>compB) {
+            return 1
+        } else if (compA<compB) {
+            return -1
+        }
+        else {
+            return 0
+        }
+    }
+    taskArr.sort(compare)
+    taskArr.sort(strikeCompare)
+    for (let i = 0; i < taskArr.length; i++) {
+        let task=document.getElementById(taskArr[i][0])
+        task.style.order=i
+    }
+    save()
 })
 
 clearButton.addEventListener('click',()=>{
     sessionStorage.clear()
-})
-
-
-const sortFinished = document.getElementById('sort finished')
-
-sortFinished.addEventListener('click', ()=>{
-    for (let i = 0; i < taskArr.length; i++) {
-        let task=document.getElementById(taskArr[i])
-        if(task.hasAttribute('class','strike')) {
-        task.style.order=i+100
-        }
-    }
-    
 })
